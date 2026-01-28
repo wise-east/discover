@@ -479,7 +479,7 @@ async def run_single_evaluation(evaluator, cfg, i_batch, sampling_client):
         f_name=f"eval_{ev_name}_iteration_{i_batch:06d}",
         scope_name=f"Running evaluation {ev_name} {i_batch}",
     ):
-        eval_metrics = await evaluator(sampling_client)
+        eval_metrics = await evaluator(sampling_client, step_idx=i_batch)
         return {f"test/{k}": v for k, v in eval_metrics.items()}
 
 

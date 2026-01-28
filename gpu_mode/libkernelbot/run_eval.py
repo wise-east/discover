@@ -548,6 +548,7 @@ def run_single_evaluation(
     ranked_timeout: int = Timeout.RANKED,
     ranking_by: str = "last",
     seed: Optional[int] = None,
+    extra_env: Optional[dict[str, str]] = None,
 ) -> tuple[RunResult, Optional[ProfileResult]]:
     """
     A single runner run, either in the context of test files, or in the
@@ -573,7 +574,7 @@ def run_single_evaluation(
         if mode == "profile":
             return profile_program(system, call, seed=seed, timeout=timeout, multi_gpu=multi_gpu)
 
-        return run_program(call, seed=seed, timeout=timeout, multi_gpu=multi_gpu), None
+        return run_program(call, seed=seed, timeout=timeout, multi_gpu=multi_gpu, extra_env=extra_env), None
 
 
 def make_system_info() -> SystemInfo:  # noqa: C901
@@ -737,8 +738,9 @@ def run_pytorch_script(  # noqa: C901
 
         # "compile" step: execute the script once. Will populate
         # `load_inline`'s compile cache, so the actual runs will be faster.
+        extra_env = kwargs.get("extra_env", None)
         try:
-            compile_run = run_program(["python3", "submission.py"], seed=1, timeout=Timeout.COMPILE)
+            compile_run = run_program(["python3", "submission.py"], seed=1, timeout=Timeout.COMPILE, extra_env=extra_env)
             if "-DTORCH_EXTENSION_NAME" in compile_run.stdout:
                 comp = CompileResult(
                     nvcc_found=True,
@@ -847,6 +849,7 @@ def run_config(config: dict):
         "benchmark_timeout": config.get("benchmark_timeout", Timeout.BENCHMARK),
         "test_timeout": config.get("test_timeout", Timeout.TEST),
         "multi_gpu": config.get("multi_gpu", False),
+        "extra_env": config.get("extra_env", None),
     }
     if config["lang"] == "py":
         runner = functools.partial(

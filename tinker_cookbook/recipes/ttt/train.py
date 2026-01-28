@@ -23,7 +23,7 @@ class CLIConfig:
     # Model configuration
     model_name: str = "openai/gpt-oss-120b"
     lora_rank: int = 32
-    renderer_name: str | None = "gpt_oss_high_reasoning"
+    renderer_name: str | None = None  # Auto-detect from model_name if not specified
     load_checkpoint_path: str | None = None
 
     # Environment configuration

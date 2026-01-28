@@ -21,7 +21,7 @@ class SamplingClientEvaluator:
     An evaluator that takes in a TokenCompleter
     """
 
-    async def __call__(self, sampling_client: tinker.SamplingClient) -> dict[str, float]:
+    async def __call__(self, sampling_client: tinker.SamplingClient, step_idx: int = 0) -> dict[str, float]:
         raise NotImplementedError
 
 

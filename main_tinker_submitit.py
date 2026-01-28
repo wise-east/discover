@@ -453,6 +453,13 @@ def submit_job(args, hydra_overrides):
     if not args.local:
         job_dir.mkdir(parents=True, exist_ok=True)
     
+    # Handle local execution early (before creating SLURM executor)
+    if args.local:
+        print("Running locally...")
+        job = TrainingJob(hydra_overrides, working_dir=os.getcwd(), max_requeue=args.max_requeue)
+        job()
+        return None
+    
     # Initialize submitit executor
     executor = submitit.AutoExecutor(folder=job_dir, cluster="slurm")
     
@@ -506,11 +513,6 @@ def submit_job(args, hydra_overrides):
         print(f"  SLURM parameters: {slurm_kwargs}")
         print(f"  Hydra overrides: {hydra_overrides}")
         print(f"  Auto-requeue: {args.auto_requeue} (max: {args.max_requeue})")
-        return None
-    
-    if args.local:
-        print("Running locally...")
-        job()
         return None
     
     # Submit job

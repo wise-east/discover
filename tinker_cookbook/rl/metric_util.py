@@ -163,14 +163,14 @@ class RLTestSetEvaluator(SamplingClientEvaluator):
         self.num_groups_to_log = num_groups_to_log
         self.num_rollouts = num_rollouts
 
-    async def __call__(self, sampling_client: tinker.SamplingClient) -> dict[str, float]:
+    async def __call__(self, sampling_client: tinker.SamplingClient, step_idx: int = 0) -> dict[str, float]:
         policy = TinkerTokenCompleter(sampling_client, max_tokens=self.max_tokens)
         env_group_builders = self.env_group_builders_P * self.num_rollouts
 
         async def run_group_rollout(builder, i):
             enable_logging = i < self.num_groups_to_log
             with logtree.optional_enable_logging(enable=enable_logging):
-                return await do_group_rollout(builder, policy)
+                return await do_group_rollout(builder, policy, step_idx)
 
         trajectory_groups_P = await asyncio.gather(
             *[run_group_rollout(builder, i) for i, builder in enumerate(env_group_builders)]
